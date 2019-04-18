@@ -2,6 +2,10 @@ import sys
 from urllib.request import urlopen
 
 
+FIELD_DELIMITER = b','
+LINE_DELIMITER = b'\n'
+
+
 def read_remote_file(url, chunk_size=65536):
     with urlopen(url) as response:
         while True:
@@ -16,7 +20,7 @@ def read_multiple_lines_from_url(url):
     last_line = b''
 
     for chunk in read_remote_file(url):
-        lines = (last_line + chunk).split(b'\n')
+        lines = (last_line + chunk).split(LINE_DELIMITER)
         last_line = lines.pop()
         yield lines
 
@@ -33,9 +37,9 @@ def calculate_average(url, column_name):
         total_lines += len(lines)
         for line in lines:
             if column_index:
-                column_sum += float(line.split(b',')[column_index])
+                column_sum += float(line.split(FIELD_DELIMITER)[column_index])
             else:
-                column_names = line.split(b',')
+                column_names = line.split(FIELD_DELIMITER)
                 column_index = column_names.index(column_name.encode('ascii'))
 
     if total_lines >= 2:
