@@ -38,12 +38,16 @@ def calculate_average(url, column_name):
                 column_names = line.split(b',')
                 column_index = column_names.index(column_name.encode('ascii'))
 
-    if total_lines:
-        return total_lines, column_sum / total_lines
+    if total_lines >= 2:
+        return total_lines, column_sum / (total_lines - 1)
 
 
 if __name__ == "__main__":
-    line_count, average_tip = calculate_average(sys.argv[1], 'tip_amount')
-
-    print('Line count:', line_count)
-    print('Average tip_amount:', average_tip)
+    result = calculate_average(sys.argv[1], 'tip_amount')
+    if result:
+        line_count, average_tip = result
+        print('Line count:', line_count)
+        print('Average tip_amount:', average_tip)
+    else:
+        print('The CSV file is empty.')
+        sys.exit(1)
