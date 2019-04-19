@@ -16,13 +16,13 @@ def read_remote_file(url, chunk_size=65536):
                 break
 
 
-def read_multiple_lines_from_url(url):
+def read_lines_in_batches_from_url(url):
     last_line = b''
 
     for chunk in read_remote_file(url):
-        lines = (last_line + chunk).split(LINE_DELIMITER)
-        last_line = lines.pop()
-        yield lines
+        line_batch = (last_line + chunk).split(LINE_DELIMITER)
+        last_line = line_batch.pop()
+        yield line_batch
 
     if last_line:
         yield [last_line]
@@ -33,9 +33,9 @@ def calculate_average(url, column_name):
     total_lines = 0
     column_sum = 0
 
-    for lines in read_multiple_lines_from_url(url):
-        total_lines += len(lines)
-        for line in lines:
+    for line_batch in read_lines_in_batches_from_url(url):
+        total_lines += len(line_batch)
+        for line in line_batch:
             if column_index:
                 column_sum += float(
                     line.split(FIELD_DELIMITER, max_split)[column_index])

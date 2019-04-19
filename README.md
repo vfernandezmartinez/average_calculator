@@ -39,6 +39,7 @@ The following approaches were also attempted but they turned out to be slower:
   * Use a regular expression to extract the tip_amount field instead of `line.split(b',')`. This was ~20% slower than the current implementation.
   * Use csv.reader(). This was ~133% slower.
   * Download data in binary chunks but process each chunk byte by byte instead of using split(). This was ~166% slower.
+  * Use ctypes to import libc.so, then use strtok(). Even though strtok() would be fast in C, this approach is very slow.
 
 ## Unit Tests
 
