@@ -37,10 +37,12 @@ def calculate_average(url, column_name):
         total_lines += len(lines)
         for line in lines:
             if column_index:
-                column_sum += float(line.split(FIELD_DELIMITER)[column_index])
+                column_sum += float(
+                    line.split(FIELD_DELIMITER, max_split)[column_index])
             else:
                 column_names = line.split(FIELD_DELIMITER)
                 column_index = column_names.index(column_name.encode('ascii'))
+                max_split = column_index + 1
 
     if total_lines >= 2:
         return total_lines, column_sum / (total_lines - 1)
