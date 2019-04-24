@@ -16,7 +16,7 @@ Execute the following commands:
 
   * Since requirements specify that only vanilla Python 3 should be used, no modules such as [pandas](https://pandas.pydata.org/) or [numpy](https://www.numpy.org/) were used.
 
-  * Network is assumed to be fast. The focus is on optimizing processing of the CSV.
+  * Network is assumed to be fast. On a regular home Internet connection, the download speed may become the main performance limiting factor. For example, at my home it downloads at a slow 1.2MB/s thus taking around 20 minutes to download. However, if the script is run from a cloud provider, network speed will be much faster. For example, at 100MB/s, it would take around 16 seconds, which is less than it takes to process the CSV. For that reason, the main focus of the implementation is on improving the CSV processing speed.
 
   * The implementation does not verify the integrity of the downloaded data, since this is not a requirement. However, when downloading large files via HTTP(S), the integrity should be verified. The reason is that HTTP is not designed for transferring large files. For example, a MD5/SHA1 hash of the file could be downloaded from the remote server and compared with the hash of the downloaded file.
 
@@ -34,12 +34,17 @@ Execute the following commands:
 
 ## Tested approaches
 
-The following approaches were also attempted but they turned out to be slower:
+The following approaches were also attempted but they turned out to be slower/worse/not possible:
 
   * Use a regular expression to extract the tip_amount field instead of `line.split(b',')`. This was ~20% slower than the current implementation.
+
   * Use csv.reader(). This was ~133% slower.
+
   * Download data in binary chunks but process each chunk byte by byte instead of using split(). This was ~166% slower.
+
   * Use ctypes to import libc.so, then use strtok(). Even though strtok() would be fast in C, this approach is very slow.
+
+  * Enable compression. This would be beneficial for slow download speeds. However, for fast connections, the time it takes to uncompress the file might turn out to be bigger than it takes to download the whole file uncompressed. Technically, the request could contain the `Accept-Encoding: br,gzip,deflate` header. Unfortunately, S3 ignores this header. When using CloudFront, compression is supported but [only for files up to 10MB](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#compressed-content-cloudfront). One option would be pre-compress the file with gzip and configure S3 to add the `Content-Encoding: gzip` response header. But that requires changes in your S3 bucket which are out of the scope of this script.
 
 ## Unit Tests
 
